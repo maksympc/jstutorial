@@ -240,3 +240,26 @@ function makeArmy() {
 var army = makeArmy();
 army[0]();
 army[5]();
+
+/**
+ * Напишите функцию sum, которая будет работать так:
+ sum(0)(1)(2)(3)(4)(5) == 15
+ Количество скобок может быть любым.
+ * */
+
+function sum1(a) {
+    var sum = a;
+    var f = function (b) {
+        sum += b;
+        return f;
+    };
+    f.toString = function () {
+        return sum;
+    };
+    f.valueOf = function () {
+        return sum;
+    };
+    return f;
+}
+
+alert(sum1(2)(3));
