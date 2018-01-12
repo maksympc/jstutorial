@@ -268,3 +268,35 @@ alert(vasya.lastName); // Попкин
 vasya.lastName = 'Сидоров';
 
 alert(vasya.fullName); // Василий Сидоров
+
+/*----------------------------------------
+link:https://learn.javascript.ru/static-properties-and-methods
+----------------------------------------*/
+/**
+ * Добавить в конструктор Article:
+ Подсчёт общего количества созданных объектов.
+ Запоминание даты последнего созданного объекта.
+ Используйте для этого статические свойства.
+ Пусть вызов Article.showStats() выводит то и другое.
+ * */
+function Article() {
+    this.created = new Date();
+    Article.date = this.created;
+
+    if (!('stats' in Article)) {
+        Article.stats = 1;
+    } else {
+        Article.stats++;
+    }
+
+    Article.showStats = function() {
+        alert('Всего: ' + Article.stats + ', Последняя: ' + Article.date);
+    };
+}
+
+new Article();
+new Article();
+Article.showStats(); // Всего: 2, Последняя: (дата)
+
+new Article();
+Article.showStats(); // Всего: 3, Последняя: (дата)
