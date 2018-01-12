@@ -306,7 +306,47 @@ function applyAll(func) {
     return func.apply(null, args);
 }
 
-alert( applyAll(sum, 1, 2, 3) ); // 6
-alert( applyAll(mul, 2, 3, 4) ); // 24
-alert( applyAll(Math.max, 2, -2, 3) ); // 3
-alert( applyAll(Math.min, 2, -2, 3) ); // -2
+alert(applyAll(sum, 1, 2, 3)); // 6
+alert(applyAll(mul, 2, 3, 4)); // 24
+alert(applyAll(Math.max, 2, -2, 3)); // 3
+alert(applyAll(Math.min, 2, -2, 3)); // -2
+
+/*------------------------------------------
+link: https://learn.javascript.ru/class-instanceof
+------------------------------------------*/
+
+/**
+ Напишите функцию formatDate(date), которая возвращает дату в формате dd.mm.yy.
+ Ее первый аргумент должен содержать дату в одном из видов:
+
+ Как объект Date.
+ Как строку, например yyyy-mm-dd или другую в стандартном формате даты.
+ Как число секунд с 01.01.1970.
+ Как массив [гггг, мм, дд], месяц начинается с нуля
+ Для этого вам понадобится определить тип данных аргумента и, при необходимости, преобразовать входные данные в нужный формат.
+
+ Пример работы:
+ function formatDate(date) { ... }
+
+ alert( formatDate('2011-10-02') ); // 02.10.11
+ alert( formatDate(1234567890) ); // 14.02.09
+ alert( formatDate([2014, 0, 1]) ); // 01.01.14
+ alert( formatDate(new Date(2014, 0, 1)) ); // 01.01.14
+ * */
+function formatDate(date) {
+    if (date instanceof Date) {
+        return ('0' + date.getDate()).slice(-2) + "." + ('0' + (date.getMonth() + 1)).slice(-2) + "." + (date.getFullYear() + '').slice(-2);
+    } else if (typeof date == 'number') {
+        return formatDate(new Date(date*1000));
+    } else if (typeof date == 'string') {
+        var items = date.split('-');
+        return items[2] + "." + items[1] + '.' + items[0].slice(-2);
+    } else if (date instanceof Array) {
+        return ('0' + date[2]).slice(-2) + '.' + ('0' + (date[1] + 1)).slice(-2) + '.' + ('' + date[0]).slice(-2);
+    }
+}
+
+alert(formatDate('2011-10-02')); // 02.10.11
+alert(formatDate(1234567890)); // 14.02.09
+alert(formatDate([2014, 0, 1])); // 01.01.14
+alert(formatDate(new Date(2014, 0, 1))); // 01.01.14
