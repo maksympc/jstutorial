@@ -337,7 +337,7 @@ function formatDate(date) {
     if (date instanceof Date) {
         return ('0' + date.getDate()).slice(-2) + "." + ('0' + (date.getMonth() + 1)).slice(-2) + "." + (date.getFullYear() + '').slice(-2);
     } else if (typeof date == 'number') {
-        return formatDate(new Date(date*1000));
+        return formatDate(new Date(date * 1000));
     } else if (typeof date == 'string') {
         var items = date.split('-');
         return items[2] + "." + items[1] + '.' + items[0].slice(-2);
@@ -350,3 +350,13 @@ alert(formatDate('2011-10-02')); // 02.10.11
 alert(formatDate(1234567890)); // 14.02.09
 alert(formatDate([2014, 0, 1])); // 01.01.14
 alert(formatDate(new Date(2014, 0, 1))); // 01.01.14
+
+/**
+ Напишите интерфейс, который принимает математическое выражение (prompt) и возвращает его результат.
+ Проверять выражение на корректность не требуется.
+ * */
+function calc(code) {
+    return eval(code);
+}
+
+alert(calc(prompt("Введите математическое выражение:")));

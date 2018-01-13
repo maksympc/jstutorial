@@ -113,32 +113,28 @@ f1000(2); // (тормозим, не прошло 1000 мс)
 f1000(3); // (тормозим, не прошло 1000 мс)
 
 function throttle(f, ms) {
-    var savedArgs = null;
+
     var savedThis = null;
+    var savedArgs = null;
     var isWait = false;
 
-    function wrap() {
-
+    return function work() {
         if (isWait) {
-            savedArgs = arguments;
             savedThis = this;
+            savedArgs = arguments;
             return;
         }
 
-        f.apply(savedThis, arguments);
+        f.apply(this, arguments);
         isWait = true;
 
-        // изменим состояние семафора через 100 мс
         setTimeout(function () {
             isWait = false;
-            if (savedArgs) { // если появились аргументы за время работы, перевызвать функцию
-                wrap.apply(savedThis, savedArgs);
-                // обнуляем, так как задача с ними выполнена
-                savedThis = savedArgs = null;
+            if (savedArgs) {
+                work.apply(savedThis, savedArgs);
+                savedThis = null;
+                savedArgs = null;
             }
         }, ms);
-
     }
-
-    return wrap;
 }
