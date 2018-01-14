@@ -357,3 +357,125 @@ dietItems.forEach(function (item) {
 });
 
 alert(fridge.getFood().length); // 2
+
+/*
+link: https://learn.javascript.ru/prototype
+ */
+/**
+ Есть объекты:
+ Задание состоит из двух частей:
+ Присвойте объектам ссылки __proto__ так, чтобы любой поиск чего-либо шёл по алгоритму pockets -> bed -> table -> head.
+ То есть pockets.pen == 3, bed.glasses == 1, но table.money == undefined.
+ После этого ответьте на вопрос, как быстрее искать glasses: обращением к pockets.glasses или head.glasses? Попробуйте протестировать.
+ * */
+
+var head = {
+    glasses: 1
+};
+
+var table = {
+    pen: 3
+};
+
+var bed = {
+    sheet: 1,
+    pillow: 2
+};
+
+var pockets = {
+    money: 2000
+};
+
+pockets.__proto__ = bed;
+bed.__proto__ = table;
+table.__proto__ = head;
+
+alert(pockets.pen); // 3
+alert(bed.glasses); // 1
+alert(table.money); // undefined
+
+/*
+link:https://learn.javascript.ru/class-inheritance
+ */
+/**
+ Есть класс Menu. У него может быть два состояния: открыто STATE_OPEN и закрыто STATE_CLOSED.
+ Создайте наследника AnimatingMenu, который добавляет третье состояние STATE_ANIMATING.
+ При вызове open() состояние меняется на STATE_ANIMATING, а через 1 секунду, по таймеру, открытие завершается вызовом open() родителя.
+ Вызов close() при необходимости отменяет таймер анимации (назначаемый в open) и передаёт вызов родительскому close.
+ Метод showState для нового состояния выводит "анимация", для остальных – полагается на родителя.
+ */
+function Menu(state) {
+    this._state = state || Menu.STATE_CLOSED;
+}
+
+Menu.STATE_OPEN = 1;
+Menu.STATE_CLOSED = 0;
+
+Menu.prototype.open = function () {
+    this._state = Menu.STATE_OPEN;
+};
+
+Menu.prototype.close = function () {
+    this._state = Menu.STATE_CLOSED;
+};
+
+Menu.prototype._stateAsString = function () {
+    switch (this._state) {
+        case Menu.STATE_OPEN:
+            return 'открыто';
+
+        case Menu.STATE_CLOSED:
+            return 'закрыто';
+    }
+};
+
+Menu.prototype.showState = function () {
+    alert(this._stateAsString());
+};
+
+function AnimatingMenu() {
+    Menu.apply(this, arguments);
+}
+
+AnimatingMenu.STATE_ANIMATING = 2;
+
+AnimatingMenu.prototype = Object.create(Menu.prototype);
+AnimatingMenu.prototype.constructor = AnimatingMenu;
+
+AnimatingMenu.prototype.open = function () {
+    var self = this;
+    this._state = AnimatingMenu.STATE_ANIMATING;
+    this._timer = setTimeout(function () {
+        // если у нас анонимная функция, то контекст необходимо передавать через замыкания
+        // иначе по умолчанию window
+        self.__proto__.__proto__.open.apply(self);
+    }, 1000);
+};
+
+AnimatingMenu.prototype.close = function () {
+    clearTimeout(this._timer);
+    this.__proto__.__proto__.close.apply(this);
+};
+
+AnimatingMenu.prototype.showState = function () {
+    if (this._state == AnimatingMenu.STATE_ANIMATING) {
+        alert("анимация");
+        return;
+    }
+    this.__proto__.__proto__.showState.apply(this);
+};
+
+// тест, использование..
+var menu = new AnimatingMenu();
+
+menu.showState(); // закрыто
+
+menu.open();
+menu.showState(); // анимация
+
+setTimeout(function () { // через 1 секунду
+    menu.showState(); // открыто
+
+    menu.close();
+    menu.showState(); // закрыто
+}, 1000);
