@@ -5,7 +5,6 @@
  * Улучшите готовый код кофеварки, который дан ниже: добавьте в кофеварку публичный метод stop(),
  * который будет останавливать кипячение (через clearTimeout).
  * */
-
 function CoffeeMachine(power) {
     this.waterAmount = 0;
 
@@ -223,3 +222,138 @@ alert('В процессе: ' + coffeeMachine.isRunning()); // В процесс
 coffeeMachine.setOnReady(function () {
     alert("После: " + coffeeMachine.isRunning()); // После: false
 });
+
+/*
+ * link: https://learn.javascript.ru/functional-inheritance
+ */
+/**
+ * В коде CoffeeMachine сделайте так, чтобы метод run выводил ошибку, если кофеварка выключена.
+ * Когда кофеварку выключают – текущая варка кофе должна останавливаться.
+ *
+ * */
+function Machine(power) {
+    this._enabled = false;
+
+    this.enable = function () {
+        this._enabled = true;
+    };
+
+    this.disable = function () {
+        this._enabled = false;
+    };
+}
+
+function CoffeeMachine(power) {
+    Machine.apply(this, arguments);
+
+    var waterAmount = 0;
+    var timerId;
+
+    this.setWaterAmount = function (amount) {
+        waterAmount = amount;
+    };
+
+    function onReady() {
+        alert('Кофе готов!');
+    }
+
+    var parentDisable = this.disable;
+    this.disable = function () {
+        parentDisable.call(this); // enabled = false;
+        clearTimeout(timerId); // прерываем выполение run();
+    };
+
+    this.run = function () {
+        if (!this._enabled) {
+            throw new Error("Кофеварка выключена");
+        }
+        timerId = setTimeout(onReady, 1000);
+    };
+
+}
+
+var coffeeMachine = new CoffeeMachine(10000);
+coffeeMachine.enable();
+coffeeMachine.run();
+coffeeMachine.disable(); // остановит работу, ничего не выведет
+
+/**
+ Создайте класс для холодильника Fridge(power), наследующий от Machine, с приватным свойством food и методами addFood(...), getFood():
+ Приватное свойство food хранит массив еды.
+ Публичный метод addFood(item) добавляет в массив food новую еду, доступен вызов с несколькими аргументами addFood(item1, item2...) для добавления нескольких элементов сразу.
+ Если холодильник выключен, то добавить еду нельзя, будет ошибка.
+ Максимальное количество еды ограничено power/100, где power – мощность холодильника, указывается в конструкторе. При попытке добавить больше – будет ошибка
+ Публичный метод getFood() возвращает еду в виде массива, добавление или удаление элементов из которого не должно влиять на свойство food холодильника.
+ * */
+function Fridge(power) {
+    Machine.apply(this, arguments);
+    var food = [];
+
+    this.getFood = function () {
+        return food.slice();
+    };
+
+    this.addFood = function (items) {
+        if (this._enabled == false) {
+            throw new Error("Ошибка, холодильник выключен!");
+        }
+        if ((food.length + arguments.length) > (power / 100)) {
+            throw new Error("Ошибка, нет места!");
+        }
+        var items = [].slice.call(arguments);
+        items.forEach(function (item) {
+            food.push(item);
+        });
+    };
+
+    this.filterFood = function (func) {
+        return food.filter(func);
+    };
+
+    this.removeFood = function (item) {
+        food = food.filter(function (i) {
+            return i != item;
+        })
+    };
+
+    var parentDisable = this.disable;
+    this.disable = function () {
+        if (food.length != 0) {
+            throw new Error("Ошибка, в холодильнике есть еда")
+        }
+        parentDisable();
+    }
+}
+
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood({
+    title: "котлета",
+    calories: 100
+});
+fridge.addFood({
+    title: "сок",
+    calories: 30
+});
+fridge.addFood({
+    title: "зелень",
+    calories: 10
+});
+fridge.addFood({
+    title: "варенье",
+    calories: 150
+});
+
+fridge.removeFood("нет такой еды"); // без эффекта
+alert(fridge.getFood().length); // 4
+
+var dietItems = fridge.filterFood(function (item) {
+    return item.calories < 50;
+});
+
+dietItems.forEach(function (item) {
+    alert(item.title); // сок, зелень
+    fridge.removeFood(item);
+});
+
+alert(fridge.getFood().length); // 2
