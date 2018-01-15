@@ -479,3 +479,4 @@ setTimeout(function () { // через 1 секунду
     menu.close();
     menu.showState(); // закрыто
 }, 1000);
+
